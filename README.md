@@ -11,7 +11,7 @@ For example.
   17 -> 52 -> 26 -> 13 -> 40 -> 20 -> 10 -> 5 -> 16 -> 8 -> 4 -> 2 -> 1
 
 
-## Your mission is to find the starting number that is less than 1,000,000 with the longest sequence.
+### Your mission is to find the starting number that is less than 1,000,000 with the longest sequence.
 
 This might take a long time.  To make it faster, you might cache previous
 answers. Suppose you have an array prev[].  Prev[n] is the length of the 
