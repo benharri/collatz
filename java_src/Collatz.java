@@ -1,3 +1,5 @@
+// Ben Harris
+
 class Collatz {
 
   int prev[] = new int[1000000];
@@ -5,7 +7,7 @@ class Collatz {
   int maxsteps = 0;
 
   public static void main(String[] args) {
-    System.out.println("collatz calc");
+    System.out.println("javaCollatz");
 
     Collatz c = new Collatz();
 
