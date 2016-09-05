@@ -27,5 +27,5 @@ If you have multiple threads, you must use good locking.
 * Can find the longest sequence.
 * Uses Java threads
 * Uses C++ Threads
-* Uses the array prev[] above.
+* Uses the array `prev[]` above.
 * Does better load balancing that simple partitioning.
