@@ -3,89 +3,54 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <cstdlib>
-#include <string>
 #include <iostream>
 #include "collatz.h"
 using namespace std;
 
 #define ONE_MIL 1000000
 
-pthread_mutex_t aMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t currMutex = PTHREAD_MUTEX_INITIALIZER;
 int *prev = new int[ONE_MIL];
-unsigned int curr = 1;
-int maxpos = 0, maxsteps = 0;
+int curr = 1, maxpos = 0, maxsteps = 0;
 
 int main (int argc, char **argv) {
-  cout << "cCollatz" << endl;
-  // for (unsigned int i = 1; i <= ONE_MIL; i++) {
-  //   if(i %1000 == 0)
-  //   cout << i << "\tnum of steps: " << collatz(i) << endl;
-  // }
-  pthread_t thread1, thread2, thread3, thread4;
-  while (curr <= ONE_MIL) {
-    pthread_create(&thread1, NULL, collatz_multithread, (void*)NULL);
-    pthread_create(&thread2, NULL, collatz_multithread, (void*)NULL);
-    pthread_create(&thread3, NULL, collatz_multithread, (void*)NULL);
-    pthread_create(&thread4, NULL, collatz_multithread, (void*)NULL);
-    pthread_join(thread1, NULL);
-    pthread_join(thread2, NULL);
-    pthread_join(thread3, NULL);
-    pthread_join(thread4, NULL);
-  }
-  cout << "Longest path was " << maxsteps << " steps for " << maxpos << endl;
+  cout << "cppCollatz" << endl << endl;
+
+  int NUM_THREADS = argc > 1 ? atoi(argv[1]): 4;
+  pthread_t threads[NUM_THREADS];
+
+  for(int i = 0; i < NUM_THREADS; i++)
+    pthread_create(&threads[i], NULL, collatz, (void*)NULL);
+  for(int i = 0; i < NUM_THREADS; i++)
+    pthread_join(threads[i], NULL);
+
+  cout << "Longest path was " << maxsteps << " steps for i=" << maxpos << endl;
+  cout << "Calculated with " << NUM_THREADS << " thread(s)." << endl;
 }
 
-// int collatz (unsigned int curr) {
-//   int cnt = 0;
-//   unsigned long long start = curr;
-
-//   while(start != 1) {
-//     if (start < curr) {
-//       cnt += prev[curr];
-//       break;
-//     }
-//     start = start % 2 == 0 ? start/2 : 3*start + 1;
-//     cnt++;
-//   }
-
-//   prev[curr] = cnt;
-
-//   if (cnt > maxpos) {
-//     maxpos = curr;
-//     maxsteps = cnt;
-//   }
-//   return cnt;
-// }
-
-void* collatz_multithread (void* arg) {
+void* collatz (void* arg) {
   while (curr <= ONE_MIL) {
 
-    pthread_mutex_lock(&aMutex);
-    if(curr%1000 == 0) cout << curr << "\tnum of steps: " << prev[curr] << endl;
-    unsigned long long working_var = curr;
-    unsigned int startval = curr;
-    pthread_mutex_unlock(&aMutex);
+    pthread_mutex_lock(&currMutex);
+    unsigned long long tmp = curr;
+    unsigned int start = curr;
+    curr++;
+    pthread_mutex_unlock(&currMutex);
 
     int cnt = 0;
 
-    while (working_var != 1) {
-      if (working_var < startval) {
-        cnt += prev[curr];
-        // break;
-      }
-      working_var = working_var%2 == 0 ? working_var/2 : 3*working_var + 1;
+    while (tmp != 1) {
+      if (tmp < start) cnt += prev[tmp];
+      tmp = tmp%2 == 0 ? tmp/2 : 3*tmp + 1;
       cnt++;
     }
 
-    prev[startval] = cnt;
+    prev[start] = cnt;
 
-    pthread_mutex_lock(&aMutex);
-    curr++;
     if (cnt > maxsteps) {
-      maxpos = startval;
+      maxpos = start;
       maxsteps = cnt;
     }
-    pthread_mutex_unlock(&aMutex);
 
   }
   return((void*)NULL);

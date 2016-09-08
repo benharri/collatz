@@ -5,7 +5,6 @@
 
 // method definitions
 int main(int argc, char **argv);
-// int collatz(unsigned int start);
-void* collatz_multithread(void* arg);
+void* collatz(void* arg);
 
 #endif
