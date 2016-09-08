@@ -4,7 +4,6 @@
 class Collatz {
   static final int one_mil = 1000000;
 
-
   public static void main (String[] args) {
     Curr curr = new Curr(1);
     Prev prev = new Prev(new int[one_mil]);
@@ -37,9 +36,8 @@ class CollatzCalc implements Runnable {
     this.max = max;
   }
 
-  public void run () {
+  public synchronized void run () {
     while (curr.curr <= Collatz.one_mil) {
-      // System.out.println(curr.curr);
       synchronized (curr) {
         tmp = curr.curr;
         start = curr.curr;
@@ -51,12 +49,13 @@ class CollatzCalc implements Runnable {
         if (tmp < start){
           synchronized (prev) {
             cnt += prev.prev[(int)tmp];
-            break;
           }
+          break;
         }
-        tmp = tmp%2 == 0 ? tmp/2: 3*tmp + 1;
+        tmp = tmp%2 == 0 ? tmp/2 : 3*tmp + 1;
         cnt++;
       }
+
       if (start < Collatz.one_mil) {
         synchronized (prev) {
           prev.prev[start] = cnt;
