@@ -1,4 +1,5 @@
 // Ben Harris
+// CS426 Collatz Assignment
 
 #include <unistd.h>
 #include <pthread.h>
