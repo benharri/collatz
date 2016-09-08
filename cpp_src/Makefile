@@ -1,11 +1,11 @@
 CSW = -O3 -Wall
-LSW = -lfd
+LSW = -pthread -lm
 
 all:
 	make collatz
 
 collatz: collatz.o Makefile
-	g++ collatz.o -o collatz
+	g++ collatz.o -o collatz $(LSW)
 
 collatz.o: collatz.cc Makefile
 	g++ collatz.cc -c -o collatz.o $(CSW)
