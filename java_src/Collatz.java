@@ -1,56 +1,75 @@
 // Ben Harris
 // CS426 Collatz Assignment
-import java.math.BigInteger;
 
 class Collatz {
-  static int[] prev = new int[1000000];
+  static final int one_mil = 1000000;
+
+  static int[] prev = new int[one_mil];
   static int maxsteps = 0, maxpos = 0;
 
   public static void main (String[] args) {
     Curr curr = new Curr(1);
-    CollatzCalc t1 = new CollatzCalc(curr);
-    curr.curr++;
-    CollatzCalc t2 = new CollatzCalc(curr);
-    curr.curr++;
+    CollatzCalc ccalc = new CollatzCalc(curr);
     System.out.println("Start threads");
-    t1.start();
-    t2.start();
+    Thread t1, t2, t3, t4;
+    while (curr.curr <= one_mil) {
+      t1 = new Thread(ccalc);
+      t1.start();
+      t2 = new Thread(ccalc);
+      t2.start();
+      t3 = new Thread(ccalc);
+      t3.start();
+      t4 = new Thread(ccalc);
+      t4.start();
+      try{
+        t1.join();
+        t2.join();
+        t3.join();
+        t4.join();
+      } catch (InterruptedException ie) {}
+    }
+    System.out.println("Longest path was " + maxsteps + " steps for i=" + maxpos);
   }
 }
 
 class Curr {
   int curr;
   public Curr (int curr) { this.curr = curr; }
+  public void next () { curr++; }
 }
 
-class CollatzCalc extends Thread {
+class CollatzCalc implements Runnable {
   Curr curr;
-  BigInteger tmp;
+  long tmp;
   int start, cnt;
 
   public CollatzCalc (Curr curr) {
-    this.curr = curr;
-    start = curr.curr;
-    tmp = BigInteger.valueOf(curr.curr);
+    synchronized (curr) {
+      this.curr = curr;
+      start = curr.curr;
+      tmp = curr.curr;
+      // System.out.println("i= " + tmp);
+      curr.next();
+    }
     cnt = 0;
   }
 
   public void run () {
-    while (curr.curr <= 1000000) {
-      while (tmp.compareTo(BigInteger.ONE) != 0) {
-        if (tmp.compareTo(BigInteger.valueOf((long)start)) < 0)
-          cnt += Collatz.prev[tmp.intValue()];
-        if (tmp.mod(BigInteger.valueOf((long)2)) == BigInteger.ZERO)
-          tmp = tmp.divide(BigInteger.valueOf((long)2));
-        else
-          tmp = tmp.multiply(BigInteger.valueOf((long)3)).add(BigInteger.ONE);
+    // while (curr.curr <= Collatz.one_mil) {
+      while (tmp != 1) {
+        if (tmp < start){
+          cnt += Collatz.prev[(int)tmp];
+          break;
+        }
+        tmp = tmp%2 == 0 ? tmp/2: 3*tmp + 1;
+        cnt++;
       }
       Collatz.prev[start] = cnt;
       if (cnt > Collatz.maxsteps) {
         Collatz.maxpos = start;
         Collatz.maxsteps = cnt;
       }
-    }
+    // }
   }
 }
 
