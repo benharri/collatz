@@ -1,46 +1,54 @@
 // Ben Harris
+// CS426 Collatz Assignment
 import java.math.BigInteger;
+
 class Collatz {
-
-  public static final int one_mil = 1000000;
-
-  int prev[]   = new int[one_mil];
-  int max      = 0;
-  int maxsteps = 0;
+  static int[] prev = new int[1000000];
+  static int maxsteps = 0, maxpos = 0;
 
   public static void main (String[] args) {
-    System.out.println("javaCollatz");
+    Curr curr = new Curr(1);
+    CollatzCalc t1 = new CollatzCalc(curr);
+    CollatzCalc t2 = new CollatzCalc(curr);
+    t1.start();
+    t2.start();
 
-    Collatz c = new Collatz();
-
-    for(int i = 1; i <= one_mil; i++){
-      System.out.println(i + "\tnum of steps: " + c.collatz(i));
-    }
-
-    System.out.println("Longest path was at " + c.max + " with " + c.maxsteps + " steps.");
-  }
-
-  int collatz (int start) {
-    int cnt = 0;
-    int initval = start;
-    BigInteger tmp = BigInteger.valueOf(start);
-    while(tmp.compareTo(BigInteger.ONE) != 0) {
-      cnt++;
-      if (tmp.compareTo(BigInteger.valueOf(one_mil)) < 0) {
-        if (prev[tmp.intValue()] != 0) {
-          tmp = BigInteger.valueOf(prev[tmp.intValue()]);
-          continue;
-        }
-      }
-      tmp = tmp.mod(BigInteger.valueOf(2)) == BigInteger.ZERO
-        ? tmp.divide(BigInteger.valueOf(2))
-        : tmp.multiply(BigInteger.valueOf(3)).add(BigInteger.ONE);
-    }
-    prev[initval] = cnt;
-    if (cnt > max) {
-      max = initval;
-      maxsteps = cnt;
-    }
-    return cnt;
   }
 }
+
+class Curr {
+  int curr;
+  public Curr (int curr) { this.curr = curr; }
+}
+
+class CollatzCalc extends Thread {
+  Curr curr;
+  BigInteger tmp;
+  int start, cnt;
+
+  public CollatzCalc (Curr curr) {
+    this.curr = curr;
+    start = curr.curr;
+    tmp = BigInteger.valueOf(curr.curr);
+    cnt = 0;
+  }
+
+  public void run () {
+    while (curr.curr <= 1000000) {
+      while (tmp.compareTo(BigInteger.ONE) != 0) {
+        if (tmp.compareTo(BigInteger.valueOf((long)start)) < 0)
+          cnt += Collatz.prev[tmp.intValue()];
+        if (tmp.mod(BigInteger.valueOf((long)2)) == BigInteger.ZERO)
+          tmp = tmp.divide(BigInteger.valueOf((long)2));
+        else
+          tmp = tmp.multiply(BigInteger.valueOf((long)3)).add(BigInteger.ONE);
+      }
+      Collatz.prev[start] = cnt;
+      if (cnt > Collatz.maxsteps) {
+        Collatz.maxpos = start;
+        Collatz.maxsteps = cnt;
+      }
+    }
+  }
+}
+
