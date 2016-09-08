@@ -9,10 +9,12 @@ class Collatz {
   public static void main (String[] args) {
     Curr curr = new Curr(1);
     CollatzCalc t1 = new CollatzCalc(curr);
+    curr.curr++;
     CollatzCalc t2 = new CollatzCalc(curr);
+    curr.curr++;
+    System.out.println("Start threads");
     t1.start();
     t2.start();
-
   }
 }
 
