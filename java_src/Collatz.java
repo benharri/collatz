@@ -4,72 +4,91 @@
 class Collatz {
   static final int one_mil = 1000000;
 
-  static int[] prev = new int[one_mil];
-  static int maxsteps = 0, maxpos = 0;
 
   public static void main (String[] args) {
     Curr curr = new Curr(1);
-    CollatzCalc ccalc = new CollatzCalc(curr);
-    System.out.println("Start threads");
-    Thread t1, t2, t3, t4;
-    while (curr.curr <= one_mil) {
-      t1 = new Thread(ccalc);
-      t1.start();
-      t2 = new Thread(ccalc);
-      t2.start();
-      t3 = new Thread(ccalc);
-      t3.start();
-      t4 = new Thread(ccalc);
-      t4.start();
-      try{
-        t1.join();
-        t2.join();
-        t3.join();
-        t4.join();
-      } catch (InterruptedException ie) {}
-    }
-    System.out.println("Longest path was " + maxsteps + " steps for i=" + maxpos);
-  }
-}
+    Prev prev = new Prev(new int[one_mil]);
+    Max max = new Max(0, 0);
+    CollatzCalc ccalc = new CollatzCalc(curr, prev, max);
 
-class Curr {
-  int curr;
-  public Curr (int curr) { this.curr = curr; }
-  public void next () { curr++; }
+    int num_threads = args.length > 0 ? Integer.parseInt(args[0]) : 4;
+    Thread threads[] = new Thread[num_threads];
+    System.out.println("Starting " + num_threads + " thread(s)...");
+
+    for (int t = 0; t < num_threads; t++){
+      threads[t] = new Thread(ccalc);
+      threads[t].start();
+    }
+    try{
+      for (int t = 0; t < num_threads; t++)
+        threads[t].join();
+    } catch (InterruptedException ie) {}
+
+    System.out.println("Longest path was " + max.maxsteps + " steps for i=" + max.maxpos);
+  }
 }
 
 class CollatzCalc implements Runnable {
-  Curr curr;
-  long tmp;
-  int start, cnt;
+  Curr curr; Prev prev; Max max; long tmp; int start, cnt;
 
-  public CollatzCalc (Curr curr) {
-    synchronized (curr) {
-      this.curr = curr;
-      start = curr.curr;
-      tmp = curr.curr;
-      // System.out.println("i= " + tmp);
-      curr.next();
-    }
-    cnt = 0;
+  public CollatzCalc (Curr curr, Prev prev, Max max) {
+    this.curr = curr;
+    this.prev = prev;
+    this.max = max;
   }
 
   public void run () {
-    // while (curr.curr <= Collatz.one_mil) {
+    while (curr.curr <= Collatz.one_mil) {
+      // System.out.println(curr.curr);
+      synchronized (curr) {
+        tmp = curr.curr;
+        start = curr.curr;
+        curr.curr++;
+      }
+
+      cnt = 0;
       while (tmp != 1) {
         if (tmp < start){
-          cnt += Collatz.prev[(int)tmp];
-          break;
+          synchronized (prev) {
+            cnt += prev.prev[(int)tmp];
+            break;
+          }
         }
         tmp = tmp%2 == 0 ? tmp/2: 3*tmp + 1;
         cnt++;
       }
-      Collatz.prev[start] = cnt;
-      if (cnt > Collatz.maxsteps) {
-        Collatz.maxpos = start;
-        Collatz.maxsteps = cnt;
+      if (start < Collatz.one_mil) {
+        synchronized (prev) {
+          prev.prev[start] = cnt;
+        }
       }
-    // }
+
+      synchronized (max) {
+        if (cnt > max.maxsteps) {
+          max.maxpos = start;
+          max.maxsteps = ++cnt;
+        }
+      }
+
+    }
   }
+}
+
+// current int that we're calculating
+class Curr {
+  int curr;
+  public Curr (int curr) { this.curr = curr; }
+}
+
+// cache of previous answers
+class Prev {
+  int prev[];
+  public Prev (int[] prev) { this.prev = prev; }
+}
+
+// max value and position
+class Max {
+  int maxpos, maxsteps;
+  public Max (int pos, int steps) { maxpos = pos; maxsteps = steps; }
 }
 
