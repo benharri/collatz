@@ -76,18 +76,18 @@ class CollatzCalc implements Runnable {
 // current int that we're calculating
 class Curr {
   int curr;
-  public Curr (int curr) { this.curr = curr; }
+  Curr (int curr) { this.curr = curr; }
 }
 
 // cache of previous answers
 class Prev {
   int prev[];
-  public Prev (int[] prev) { this.prev = prev; }
+  Prev (int[] prev) { this.prev = prev; }
 }
 
 // max value and position
 class Max {
   int maxpos, maxsteps;
-  public Max (int pos, int steps) { maxpos = pos; maxsteps = steps; }
+  Max (int pos, int steps) { maxpos = pos; maxsteps = steps; }
 }
 
