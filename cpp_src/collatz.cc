@@ -30,12 +30,14 @@ int main (int argc, char **argv) {
 }
 
 void* collatz (void* arg) {
-  while (curr <= one_mil) {
+  while (true) {
     pthread_mutex_lock(&currMutex);
+      bool keep_going = curr <= one_mil;
       unsigned long long tmp = curr;
       unsigned int start = curr;
       curr++;
     pthread_mutex_unlock(&currMutex);
+    if (!keep_going) break;
 
     int cnt = 0;
     while (tmp != 1) {

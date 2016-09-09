@@ -28,7 +28,7 @@ class Collatz {
 }
 
 class CollatzCalc implements Runnable {
-  Curr curr; Prev prev; Max max; long tmp; int start, cnt;
+  Curr curr; Prev prev; Max max; long tmp; int start, cnt; boolean keep_going;
 
   public CollatzCalc (Curr curr, Prev prev, Max max) {
     this.curr = curr;
@@ -37,12 +37,14 @@ class CollatzCalc implements Runnable {
   }
 
   public synchronized void run () {
-    while (curr.curr <= Collatz.one_mil) {
+    while (true) {
       synchronized (curr) {
+      	keep_going = curr.curr <= Collatz.one_mil;
         tmp = curr.curr;
         start = curr.curr;
         curr.curr++;
       }
+      if (!keep_going) break;
 
       cnt = 0;
       while (tmp != 1) {
