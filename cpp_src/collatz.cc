@@ -56,7 +56,7 @@ void* collatz (void* arg) {
     pthread_mutex_lock(&maxMutex);
       if (cnt > maxsteps) {
         maxpos = start;
-        maxsteps = ++cnt;
+        maxsteps = cnt;
       }
     pthread_mutex_unlock(&maxMutex);
 

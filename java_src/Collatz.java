@@ -65,7 +65,7 @@ class CollatzCalc implements Runnable {
       synchronized (max) {
         if (cnt > max.maxsteps) {
           max.maxpos = start;
-          max.maxsteps = ++cnt;
+          max.maxsteps = cnt;
         }
       }
 
