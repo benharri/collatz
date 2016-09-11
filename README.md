@@ -14,7 +14,7 @@ For example.
 ### Your mission is to find the starting number that is less than 1,000,000 with the longest sequence.
 
 This might take a long time.  To make it faster, you might cache previous
-answers. Suppose you have an array prev[].  Prev[n] is the length of the 
+answers. Suppose you have an array `prev[]`.  `Prev[n]` is the length of the 
 sequence starting at n.  If, when computing a sequence, you ever get to a
 number with a value in `prev[]`, you can use that instead of continuing the 
 computation.
